@@ -28,13 +28,13 @@ UI = f(g(source))
 
 - `useMemo`
 
-  ```react
+  ```javascript
   const greeting = React.useMemo(() => `${greet}, ${name}!`, [greet, name]);
   ```
 
 - `useState`+`useEffect`
 
-  ```react
+  ```javascript
   const [greeting, setGreeting] = useState(() => `${greet}, ${name}!`);
   
   useEffect(() => {
@@ -52,7 +52,7 @@ UI = f(g(source))
 
 那首先来一个基础版本：
 
-```react
+```javascript
 import * as React from 'react';
 import { combineLatest, from, of } from 'rxjs';
 import { catchError, map, startWith } from 'rxjs/operators';
@@ -91,7 +91,7 @@ const GreetSomeone = ({ greet = 'Hello' }) => {
 
 但这里的问题是，prop `greet`是会发生变化的，而`greet$`的数据不会发生更新。怎么解决呢？比如这样：
 
-```react
+```javascript
 React.useEffect(() => {
         const greet$ = of(greet);
 				
@@ -107,7 +107,7 @@ React.useEffect(() => {
 
 怎么解决呢？再引入一个`useEffect`，用Rxjs的`Subject.next`主动去推数据，而保证构建Rxjs流仅执行一次，贴上完整代码：
 
-```react
+```javascript
 import * as React from 'react';
 import { BehaviorSubject, combineLatest, from, of } from 'rxjs';
 import { catchError, map, startWith } from 'rxjs/operators';
@@ -160,7 +160,7 @@ Rxjs-hooks设计了两个hook，一个是`useObservable`，一个是`useEventCal
 
 看一下`useObservable`：摘除TS类型后，是不是和上面提到的结构是一致的
 
-```react
+```javascript
 export function useObservable(
   inputFactory,
   initialState,
@@ -199,7 +199,7 @@ export function useObservable(
 
 使用举例：
 
-```react
+```javascript
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { useObservable } from 'rxjs-hooks'
