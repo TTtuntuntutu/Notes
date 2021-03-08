@@ -1,4 +1,4 @@
-## HTTP请求场景
+## 多HTTP请求场景
 
 假设有这样一个场景，需要发送100个请求，如何在保证发起请求成功同时，尽可能快的发送请求？
 
@@ -271,7 +271,11 @@ Rxjs当然不输于Promise，但一定要说优势的话，还是落到Operators
 
 
 
+## 远程搜索选择框
 
+基于 `switchMap`，再加上 `debounceTime` 做防抖， `distinctUntilChanged` 做去重，增加用户体验。
+
+[DEMO](https://codesandbox.io/s/react-ts-rxjs-njyc7?file=/src/components/boss/SearchInput.tsx)
 
 
 
