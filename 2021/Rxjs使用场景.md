@@ -277,8 +277,26 @@ Rxjs当然不输于Promise，但一定要说优势的话，还是落到Operators
 
 [DEMO](https://codesandbox.io/s/react-ts-rxjs-njyc7?file=/src/components/boss/SearchInput.tsx)
 
+不使用Rxjs，像`switch`这样的策略如何实现？比如在闭包环境里定义一个时间戳，在定义一个全局变量，每次时间戳生成的时候，时间戳赋值给这个全局变量。最后异步行为的时候，闭包里面的时间戳和全局最新的时间戳比较来决定是否产生副作用。很麻烦吧
+
+反而锦上添花的用户体验是可以做到的，比如 debounce 防抖逻辑是在一个闭包中注入时间差的概念、那在注入一个值的概念就可以做到去重了。这个逻辑相对来说是顺畅的。
+
+显然Rxjs的组合技是更加方便的。
 
 
 
+## 表单实时保存草稿
+
+和远程搜索类似，只不过基于`concatMap`，前一次接口请求到位了才会去请求下一次。
+
+这里考虑不使用Rxjs会怎么做，用一个全局变量记录第一次发起的请求，之后再过来的行为，通过`pr.then`形式注入？这个逻辑就比较别扭了。
 
 
+
+## 异步按钮：防重复点击
+
+基于`exhaustMap` 
+
+[DEMO](https://codesandbox.io/s/react-ts-rxjs-njyc7?file=/src/components/boss/AsyncBtn.tsx)
+
+现在开发中防重复点击是通过Loading、disabled，从UI层来防止。基于`exhaustMap`，是从js逻辑控制，而增加Loading或者disabled做视觉提示。
