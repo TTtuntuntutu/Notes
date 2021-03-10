@@ -263,7 +263,7 @@ const userDetails$ = users$.pipe(
 
 - By setting the parameter to **1**, all requests will run in serial, while setting it to **Infinity** will result in parallel requests.
 
-### 个人小结
+### 小结
 
 针对简单的多HTTP请求场景本身，Promise本身的表达能力是足以胜任的，async/await也差不多。
 
@@ -300,3 +300,52 @@ Rxjs当然不输于Promise，但一定要说优势的话，还是落到Operators
 [DEMO](https://codesandbox.io/s/react-ts-rxjs-njyc7?file=/src/components/boss/AsyncBtn.tsx)
 
 现在开发中防重复点击是通过Loading、disabled，从UI层来防止。基于`exhaustMap`，是从js逻辑控制，而增加Loading或者disabled做视觉提示。
+
+
+
+## 其他：Subject相关
+
+摘自飞叔：[Rxjs入门指引和初步应用](https://zhuanlan.zhihu.com/p/25383159)
+
+
+
+表达这样一个关系：利用`Subject`做一个占位符
+
+```javascript
+// 业务关系：
+//            工资周期  ———>  工资
+//                            ↓
+// 房租周期  ———>  租金  ———>  收入  ———>  现金
+//                ↑          ↓
+//            房子数量 <——— 新购房
+```
+
+[DEMO](https://codesandbox.io/s/react-ts-rxjs-njyc7?file=/src/components/rxjs/MoneyHouse.ts:0-166)
+
+
+
+对“我们来晚了的订阅者”，实现回放之前错过的一切：
+
+[DEMO-黄蓉郭靖背九阴真经](https://stackblitz.com/edit/y1bxyx?file=index.ts)
+
+
+
+## 总结
+
+Rx使用场景的概述，看飞叔这段话：
+
+> 蚂蚁的大部分业务系统前端不太适合用RxJS，大部分是中后台CRUD系统，因为两个原因：整体性、实时性的要求不高。 
+>
+> 什么是整体性？这是一种系统设计的理念，系统中的很多业务模块不是孤立的，比如说，从展示上，GUI与命令行的差异在于什么？在于数据的冗余展示。我们可以把同一份业务数据以不同形态展示在不同视图上，甚至在PC端，由于屏幕大，可以允许同一份数据以不同形态同时展现，这时候，为了整体协调，对此数据的更新就会要产生很多分发和联动关系。 
+>
+> 什么是实时性？这个其实有多个含义，一个比较重要的因素是服务端是否会主动向推送一些业务更新信息，如果用得比较多，也会产生不少的分发关系。 
+>
+> 在分发和联动关系多的时候，RxJS才能更加体现出它比Generator、Promise的优势。
+
+关键字就是：实时性、整体性、分发和联动关系多。
+
+
+
+这里挖掘的场景是实时性，当发生请求的行为是频繁的，通过不同的策略做调控。
+
+如果不用Rx，用原生去应付这些场景，很可能要引入中间变量来记录状态值控制，有的逻辑尚可，有的却很别扭。而Rx操作符组合技，可以让你变身魔术师。 
