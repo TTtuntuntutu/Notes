@@ -22,6 +22,12 @@ data = g(source)
 UI = f(g(source))
 ```
 
+是不是和MV定义很像：
+> MVVM happens to be a good fit for Rx*. 
+> Quoting Wikipedia:
+>
+> >The view model of MVVM is a value converter meaning that the view model is responsible for exposing the data objects from the model in such a way that those objects are easily managed and consumed. In this respect, the view model is more model than view, and handles most if not all of the view’s display logic.
+
 ## 先从React开始：rxjs-hooks
 
 在React中（仅考虑函数式组件）仅有两种形式可直接表达“非一次性赋值”：
