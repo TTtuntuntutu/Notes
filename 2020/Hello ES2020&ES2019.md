@@ -1,131 +1,412 @@
-文章介绍了如何将滚动条设置在`tbody`标签上，并且表格整体和未设置滚动条一致；此外补充了一些`table`的冷门姿势。
+##写在前面
 
-#### How to set tbody height with overflow scroll
-
-[问题demo](http://jsfiddle.net/amit4mins/f2XYF)
-
-[解决问题demo](http://jsfiddle.net/f2XYF/8/)
-
-要想给tbody一个超出的滚动条，其实只需要给tbody设置一个固定`height`，以及`overflow:auto`也就是超出添加滚动条。但是table固有的`display`属性使得为thead和tbody设置`height`没有用。
-
-这里首先做的就是改变`display`属性：
+最近花时间看了一点ES2019和ES2020新增的特性。
 
 
-```css
-table,thead,tbody{
-    display:block
+因为之前看了infoQ的一篇文章：[JavaScript and Web Development InfoQ Trends Report 2020 ](www.infoq.com/articles/javascript-web-development-trends-2020/?itm_source=articles_about_Web-Development&itm_medium=link&itm_campaign=Web-Development)
+
+
+提到：
+
+- ES2020，是自ES2015以来，带来新语言特性最多的一版
+
+  > The annual ECMAScript release, ES2020, is approaching with the greatest number of new language features since ES2015, including optional chaining, BigInt, globalThis, nullish coalescing, and dynamic import. All of these features are considered stable with at least two working browser implementations.
+
+- ES2019，ES2019已经进入早期成熟阶段，支持性尚可
+
+  > ES2019 added the flat and flatMap methods to arrays after the #smooshgate controversy, Object.fromEntries, and a few small improvements to strings and optional catch binding. This relatively small new set of features are now used by an early majority of JavaScript developers.
+
+
+
+也因为最近团队开始使用typescript，typescript密切跟随着规范的发展：
+
+> Evolving with Standards
+> The TypeScript team contributes to the TC39 committees which help guide the evolution of the JavaScript language.
+> When new features have reached stage 3, then they are ready for inclusion in TypeScript.
+> For example the TypeScript team championed proposals like Optional Chaining, Nullish coalescing Operator, Throw Expressions and RegExp Match Indices.
+
+
+
+再加上团队业务基本不考虑兼容性。
+
+
+既然土壤已经如此成熟，就兴致勃勃地去种下新特性的种子，看看能否收获果实。
+
+我摘取了对我吸引比较大的。
+
+## ES2020
+### 可选链（Optional chaining）
+
+我们在JavaScript中肯定写过类似下面的代码，在这一大串中的任一一个节点值是 `undefined` 或者 `null` 的时候，程序就会报错：
+
+```javascript
+const nameLength = db.user.name.length;
+```
+
+所以我们会干点体力活，使用 if 语句：
+
+```javascript
+let nameLength;
+if (db && db.user && db.user.name)
+  nameLength = db.user.name.length;
+```
+
+或者使用3元运算符：
+
+```javascript
+const nameLength =
+  (db
+    ? (db.user
+      ? (db.user.name
+        ? db.user.name.length
+        : undefined)
+      : undefined)
+    : undefined);
+```
+
+很费劲，可读性也很差。
+
+
+所以引入了可选链，它的语法是 `?.` 。
+
+回到上面的代码，在使用可选链后，当任意一个节点出现 undefined 或者 null 值的时候，nameLength会赋值 undefined：
+
+```javascript
+const nameLength = db?.user?.name?.length;
+```
+
+是否一下子就优雅了。
+
+
+可选链语法还支持表达式和函数调用：
+
+```javascript
+obj?.prop
+obj?.[expr]
+arr?.[index]
+func?.(args)
+```
+
+
+此外，可选链 和 空值合并运算符（nullish coalescing operator）一块使用也很香：
+
+```javascript
+const object = { id: 123, names: { first: 'Alice', last: 'Smith' }};
+
+// 使用可选链 + 空值合并运算符
+const firstName = object?.names?.first ?? '(no first name)';   // → 'Alice'
+
+const middleName = object?.names?.middle ?? '(no middle name)';   // → '(no middle name)'
+```
+
+
+此外：
+
+- 可选链是短路式的，如果链路上任一节点出现 null 或者 undefined值，链路后面的表达式不会再计算：
+
+```javascript
+// `age` 仅在 `db` and `user` 存在时会增加
+db?.user?.grow(++age);
+```
+
+- 可选链和 delete方法一块使用也很智能：
+
+```javascript
+// `db.user` 仅在 `db` 存在时会被删除
+delete db?.user;
+```
+
+### 空值合并运算符（Nullish coalescing operator）
+
+空值合并运算符的语法是 `??` ，和 `&&` 、 `||` 很相似，也是一位短路操作符。
+
+`左表达式 `??` 右表达式`，当 左表达式 值是 `undefined` 或者 `null` 的时候，返回 右表达式，否则返回左表达式。
+
+
+
+空值合并运算符和可选链一块使用 已经提到了。
+
+还有一个使用场景，我们希望组件在属性 enabled 值为 true / undefined / null 时，开启某个功能：
+
+```javascript
+function Component(props) {
+  const enable = props.enabled ?? true;
+  // …
 }
 ```
 
-之后可以设置`height`，但是在设置`height`后，这时候表格的样式扭曲了，表现为问题demo表二，为了保持样式正常，需要：
+### globalThis
+
+浏览器端的全局对象是 `window`，后端的全局对象是 `global`，如果我们有代码既要跑在浏览器端，又要跑在后端，我们会加类似这样的代码探测：
+
+```javascript
+const getGlobalThis = () => {
+  if (typeof globalThis !== 'undefined') return globalThis;
+  if (typeof self !== 'undefined') return self;
+  if (typeof window !== 'undefined') return window;
+  if (typeof global !== 'undefined') return global;
+  if (typeof this !== 'undefined') return this;
+  throw new Error('Unable to locate global `this`');
+};
+const theGlobalThis = getGlobalThis();
+```
 
 
-```css
-thead, tbody tr {
-    display:table;
-    width:100%;
-    table-layout:fixed;
+
+很麻烦，而且效率低（why?）
+
+`globalThis` 关键字的引入，提供了在JavaScript中获取全局对象的统一机制。
+
+### Promise.allSettled
+
+继 `Promise.all`、`Promise.race` 后又一个新的 Promise 组合：`Promise.allSettled`。
+
+`Promise.allSettled` 乖乖地等待所有promise的结果，无论其结果是成功还是 拒绝，对比 `Promise.all` ：
+
+```javascript
+var p1 = Promise.all([1,2,3, Promise.reject(555)]);
+p1.then(v => console.log(v)).catch(e => console.log(e));    //555
+
+var p2 = Promise.allSettled([1,2,3, Promise.reject(555)]);
+p2.then(v => console.log(v.map(pr => pr.status)));  //["fulfilled", "fulfilled", "fulfilled", "rejected"]
+```
+
+### String.prototype.matchAll
+
+假设这样一个场景，有下面这串数据，期望返回ing前面的动词，这里就是`['climb','jump','fly'] `：
+
+```javascript
+const test = "climbing, oranges, jumping, flying, carrot";
+```
+
+
+考虑构建正则表达式解决问题，构建它：
+
+```javascript
+const regex = /([a-z]*)ing/g;
+```
+
+有了正则表达式，我们开始想用API去检索数据。
+
+`String.prototype.match` ?
+
+```javascript
+const test = "climbing, oranges, jumping, flying, carrot";
+const regex = /([a-z]*)ing/g;
+
+test.match(regex);
+// ["climbing", "jumping", "flying"]
+```
+
+`str#match` 方法应用带g标识的regex，是不支持 capturing groups 的，得到的是带ing的数据，还得手动体力活一下...
+
+`RegExp.prototype.exec` ?
+
+```javascript
+const test = "climbing, oranges, jumping, flying, carrot";
+const regex = /([a-z]*)ing/g;
+
+const matches = [];
+
+while (true) {
+  const match = regex.exec(test);
+  if (match === null) break;
+  matches.push(match[1]);
+}
+
+console.log(matches);
+//["climb", "jump", "fly"]
+```
+
+`regx#exec` 支持 capturing groups ，可以解决问题，但是很绕...
+
+`String.prototype.matchAll` 以直观、优雅地方式解决这个问题，因为它支持 capturing groups ，而且只能应用带 g 的正则表达式：
+
+```javascript
+const test = "climbing, oranges, jumping, flying, carrot";
+
+const regex = /([a-z]*)ing/g;
+
+const matches = [...test.matchAll(regex)];
+
+const result = matches.map(match => match[1]);
+
+result
+// ["climb", "jump", "fly"]
+```
+
+### 其他
+
+BigInt：跨越了Number.Number.MAX_SAFE_INTEGER限制
+
+```javascript
+typeof 123;
+// → 'number'
+typeof 123n;
+// → 'bigint'
+```
+
+
+
+动态模块加载（Dynamic import）
+
+适用：
+
+1. 按需加载模块
+2. 在runtime时计算模块说明符
+3. ...
+
+```html
+<script type="module">
+  (async () => {
+    const moduleSpecifier = './utils.mjs';
+    const module = await import(moduleSpecifier)
+    module.default();
+    // → logs 'Hi from the default export!'
+    module.doStuff();
+    // → logs 'Doing stuff…'
+  })();
+</script>
+```
+
+对比静态模块加载（static import）：
+
+1. 仅接收字符串作为模块说明符
+2. 在pre-runtime时绑定引入本地范围
+3. 静态模块加载 必须出现在文件的top-level
+4. use cases: static analysis、bundling tools、tree-shaking
+
+```html
+<script type="module">
+  import * as module from './utils.mjs';
+  module.default();
+  // → logs 'Hi from the default export!'
+  module.doStuff();
+  // → logs 'Doing stuff…'
+</script>
+```
+
+<script type="module">
+  import * as module from './utils.mjs';
+  module.default();
+  // → logs 'Hi from the default export!'
+  module.doStuff();
+  // → logs 'Doing stuff…'
+</script>
+## ES2019
+
+### Array.prototype.flat
+
+`arr#flat` 的作用非常明确：对数组做层级展开
+
+```javascript
+const arr1 = [1, 2, [3, 4]];
+arr1.flat(); 
+// [1, 2, 3, 4]
+
+const arr2 = [1, 2, [3, 4, [5, 6]]];
+arr2.flat();
+// [1, 2, 3, 4, [5, 6]]
+
+const arr3 = [1, 2, [3, 4, [5, 6]]];
+arr3.flat(2);
+// [1, 2, 3, 4, 5, 6]
+
+const arr4 = [1, 2, [3, 4, [5, 6, [7, 8, [9, 10]]]]];
+arr4.flat(Infinity);
+// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+```
+
+比较有意思的是，我们是有其他替换方法，娱乐娱乐！
+
+方法一：`arr#reduce`+`arr#isArray+arr#concat`
+
+```javascript
+const arr = [1, 2, [3, 4, [5, 6]]];
+
+// to enable deep level flatten use recursion with reduce and concat
+function flatDeep(arr, d = 1) {
+   return d > 0 ? arr.reduce((acc, val) => acc.concat(Array.isArray(val) ? flatDeep(val, d - 1) : val), [])
+                : arr.slice();
+};
+
+flatDeep(arr, Infinity);
+// [1, 2, 3, 4, 5, 6]
+```
+
+方法二：`generator`
+
+```javascript
+function* flatten(array, depth) {
+    if(depth === undefined) {
+      depth = 1;
+    }
+    for(const item of array) {
+        if(Array.isArray(item) && depth > 0) {
+          yield* flatten(item, depth - 1);
+        } else {
+          yield item;
+        }
+    }
+}
+
+const arr = [1, 2, [3, 4, [5, 6]]];
+const flattened = [...flatten(arr, Infinity)];
+// [1, 2, 3, 4, 5, 6]
+```
+
+新增的数组api还有`Array.prototype.flatMap` ，它相当于`arr.map(fn).flat() `。
+
+### try...catch...支持catch不捕获参数
+
+以前的try...catch...必须是这样的：
+
+```javascript
+try {
+    throw Error('some random error')
+} catch(e) {
+    console.log(e)
 }
 ```
 
-`display:table`使得`tr`标签表现为一个`table`,`table-layout:fixed`和设置宽度的`width:100%`是一套组合拳，使得这个"table"的第一行宽度为`100%`，并且每一列宽度是一致的，后面所有行按照第一行对齐，如果内容超出就出现滚动条。
+现在的try...catch...支持catch不捕获参数了，两种形式都可以～
 
-如果想使得`thead`和`tbody`宽度保持一致，需要额外去除`thead`多余的滚动条的宽度，比如：
-
-```css
-thead {
-    width: calc( 100% - 1em )
+```javascript
+try {
+    throw Error('some error')
+} catch {
+    console.log('no params for catch')
 }
 ```
 
-这之后每一列的列宽是一致的。存在的问题是如果提前使用标签`colgroup`设置不同列宽，这里是丢失的。
+## typescript配置：tsconfig
 
-不是很好的解决方法是重新再去为`th`、`td`设置宽度，比如：
+要在项目中使用ES2020，需要配置tsconfig，相关的属性是 compilerOptions下的target和lib属性：
 
-
-```css
-th:nth-child(1),
-td:nth-child(1) {
-  width: 5%;
-}
-th:nth-child(2),
-td:nth-child(2) {
-  width: 6.7%;
+```json
+{
+  "compilerOptions":{
+    "target": "ESNEXT"
+  }
 }
 ```
 
-#### 顺便补充一下关于`table`的冷门姿势
+- 指定target 值为 ESNEXT 或者 ES2020，target 指定后会默认指定好相关的lib值
+- 一般不手动指定lib值，仅有两种场景：
+  - 比如 target 指定了ES2020，默认lib是包含"DOM"的，但是我的代码如果不是跑在浏览器，那手动去指定不包含“DOM”的lib值
+  - 比如 target 指定了ES5，但是对于ES5+的一些语法做了ployfill，所以得增加lib，在编译过程得告诉typescript这些语法的合法性
 
-什么时候去用`table`呢？
 
-歪果话是这么说的：tables are for tabular data. 啥意思呢？比如乘法口诀表...
 
-不要用`table`去布局！因为html标签是语义化的，多余语义化的标签对screen readers不友好。
 
-##### `thead`、`tbody`、`tfoot`
 
-只有一个表头推荐使用这个三个元素去包裹行（`tr`元素），语义化指定。
+## 参考链接
 
-这里`tfoot`元素是特殊的，推荐在html中`tfoot`是放在`thead`之后，`tbody`之前。（但是渲染结果还是在最后的）理由：
+[optional-chaining](https://v8.dev/features/optional-chaining)
+[nullish-coalescing](https://v8.dev/features/nullish-coalescing)
+[bigint](https://v8.dev/features/bigint)
+[dynamic import](https://v8.dev/features/dynamic-import)
+[ES2020: Everything You Need to Know](https://www.martinmck.com/posts/es2020-everything-you-need-to-know/)
+[JavaScript: What's new in ECMAScript2019(ES2019)/ES10?](https://medium.com/@selvaganesh93/javascript-whats-new-in-ecmascript-2019-es2019-es10-35210c6e7f4b)
 
-> this is an accessibility concern, as the footer may contain information necessary to understand the table, it should be before the data in the source order.
-
-[demo](https://codepen.io/chriscoyier/pen/mIjil?editors=1000)
-
-##### `td`、`th`
-
-cells
-
-其中`th`不限制只在`thead`中使用，它只是简单表示标题信息
-
-双轴情况就跳过不使用`thead`了，[双轴](https://codepen.io/chriscoyier/pen/qJBpF)
-
-##### cells合并
-
-`rowspan`是多行合并，`colspan`是多列合并
-
-比较常见的是组织table headers：[demo](https://codepen.io/chriscoyier/pen/AlxGt?editors=1100)
-
-##### 基本样式
-
-使用colors、lines去区分表格的各个部分。
-
-默认情况下，table cells之间间隔2px（通过用户代理样式表）：
-
-```css
-table {
-    border-collapse: separate;
-    border-spacing: 2px;
-}
-```
-
-可以去设置这个值的大小：
-
-```css
-table {
-  border-spacing: 0.5rem;
-}
-```
-
-更常见的是移除这个值：
-
-```css
-table {
-  border-collapse: collapse;
-}
-```
-
-[demo](https://codepen.io/chriscoyier/pen/kaErt)
-
-##### `table`的宽度
-
-table元素有点儿像`display:block`，因为一个table元素会在新一行去显示。但是它的宽度...需要多宽就是多宽，也不能去设置。
-
-cell不换行，text默认换行：[demo](https://codepen.io/chriscoyier/pen/ILrKi?editors=1100)
-
-#### 参考链接
-
-[how-to-set-tbody-height-with-overflow-scroll](https://stackoverflow.com/questions/23989463/how-to-set-tbody-height-with-overflow-scroll)
-
-[A Complete Guide to the Table Element](https://css-tricks.com/complete-guide-table-element/)
 
