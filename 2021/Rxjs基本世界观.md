@@ -14,7 +14,7 @@
 
 简单来下个定义，Rxjs是用引入的类型组装了一个管道，并且有丰富的操作符支持在管道中对数据流处理，这样的模型表达了一个数据、数据处理、关联行为的绑定关系，而这样的关系是响应式的。
 
-
+<Br/>
 
 本篇是Rxjs系列的第一篇，旨在搭建对Rxjs的基本认识，介绍了：
 
@@ -22,9 +22,11 @@
 - Subject 是什么？
 - Scheduler 是什么？
 
-
+<Br/>
 
 让我们开始吧！
+
+<Br/>
 
 ## Observable --> Observer --> Subscription
 
@@ -32,7 +34,7 @@
 
 想象Observable的管道模型！它是Rxjs流的源头！
 
-
+<Br/>
 
 创建Observable的时候，会包含数据推送的逻辑，比如通过构造函数创建，逻辑就在起描述作用的回调函数内：
 
@@ -62,14 +64,14 @@ const result = from(array);
 result.subscribe(x => console.log(x));
 ```
 
-
+<Br/>
 
 很显然，Observable是一个数据生产者（Data Producer）。描述数据生产者和 数据消费者（Data Consumber）之间的交流有两种策略：Pull 或者 Push。
 
 - Pull策略：由消费者决定什么时候从生产者 处拉取数据，而生产者是不知道这个时间点的（e.g. 每个JavaScript函数是一个Pull系统，函数是数据生产者，由调用函数，即数据消费者，决定什么时候取出这个数据）；
 - Push策略：生产者向消费者推送数据，消费者做好数据响应（e.g. Promise，作为生产者，把数据resolve给注册的回调，也就是消费者）；
 
-
+<Br/>
 
 Observable被这样描述：
 
@@ -77,13 +79,13 @@ Observable被这样描述：
 
 Rxjs的数据交流是一种Push策略，由Observable推送数据。那什么是 lazy 呢？
 
-
+<Br/>
 
 这就要介绍Rxjs引入的第一种卫星类型：Observer！
 
 想象一下Observer的管道模型！它是Rxjs流的终点了！
 
-
+<Br/>
 
 Observer仅仅是有着三个回调函数的对象，来监听Observable数据推送，做好响应准备。当Observer用于订阅Observable后，数据推送就开始了：
 
@@ -110,13 +112,13 @@ const observer1 = {
 observable.subscribe(observer1)
 ```
 
-
+<Br/>
 
 回到最开始的问题：什么是 lazy 呢？
 
 它指的就是 Observable 被订阅后，才可以生产数据。
 
-
+<Br/>
 
 那如果要取消这种订阅呢？
 
@@ -130,7 +132,7 @@ const subscription = observable.subscribe(x => console.log(x));
 subscription.unsubscribe();
 ```
 
-
+<Br/>
 
 ## Subject
 
@@ -138,7 +140,7 @@ Subject是Rxjs引入的另外一种卫星类型。
 
 想象一下Subject的管道模型！因为它既可以作为Observable，也可以作为Observer！
 
-
+<Br/>
 
 一般的Observable和Observer，是一对一的单播关系，每个Observer享有独立的Observable执行上下文：
 
@@ -159,7 +161,7 @@ setTimeout(()=>numbers$.subscribe(x => console.log(`延迟触发：${x}`)),1000)
 // ...
 ```
 
-
+<Br/>
 
 而当Subject作为Observable，它和Observers之间是一对多的广播关系，每个Observer共享Subject执行上下文：
 
@@ -186,7 +188,7 @@ subject.next(2);
 // observerB: 2
 ```
 
-
+<Br/>
 
 当Subject作为Observer的时候，它的作用就是把 Observable --> Observer 一对一的单播关系，转为 Observable --> (Subject) --> Observers 一对多的广播关系：
 
@@ -215,17 +217,19 @@ observable.subscribe(subject);
 // observerB: 3
 ```
 
-
+<Br/>
 
 除了Subject，Rxjs还引入了一些变体：BehaviorSubject、ReplaySubject、AsyncSubject。这些变体在共享执行上下文的基础，还增加了各自独特的行为，这里不做展开说明了。
 
 贴一个 [徐飞-RxJS 入门指引和初步应用](https://zhuanlan.zhihu.com/p/25383159) 飞叔文章里 ReplaySubject 有意思的DEMO：[黄蓉郭靖背九阴真经](https://stackblitz.com/edit/y1bxyx?file=index.ts)。
 
-
+<Br/>
 
 但是我没有找到在实际开发中Subject的使用场景～
 
 欢迎评论区留言～
+
+<Br/>
 
 ## Scheduler
 
@@ -271,7 +275,7 @@ console.log('just after subscribe');
 // done
 ```
 
-
+<Br/>
 
 ## 结束
 
@@ -279,6 +283,9 @@ console.log('just after subscribe');
 
 文章对Subject、Scheduler的介绍比较简单，也是因为在实际开发中用到的会比较少，有好的使用场景，感谢大家告诉一下。
 
-
+<Br/>
 
 下一篇讲讲 丰富的 Rxjs Operators（操作符）。
+
+<Br/>
+

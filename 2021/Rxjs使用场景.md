@@ -6,6 +6,8 @@
 
 这里使用了Promise、async/await、Rxjs三种表达方式！
 
+<Br/>
+
 
 ### Promise
 
@@ -67,7 +69,7 @@ async function maxRequest(arr, n) {
 
 - 思路是先单独实现串行、并行，再组合起来、做一点调整就可以了
 
-
+<Br/>
 
 ### async/await
 
@@ -153,7 +155,7 @@ async function maxRequest(arr, n) {
 }
 ```
 
-
+<Br/>
 
 ### Rxjs
 
@@ -262,13 +264,15 @@ const userDetails$ = users$.pipe(
 
 - By setting the parameter to **1**, all requests will run in serial, while setting it to **Infinity** will result in parallel requests.
 
+<Br/>
+
 ### 小结
 
 针对简单的多HTTP请求场景本身，Promise本身的表达能力是足以胜任的，async/await也差不多。
 
 Rxjs当然不输于Promise，但一定要说优势的话，还是落到Operators上。所以在已经使用Rxjs的前提下，用Rxjs去解多HTTP请求场景，是很方便的。但如果因为这个场景而专门引入Rxjs，是不必要的。
 
-
+<Br/>
 
 ## 远程搜索选择框
 
@@ -282,7 +286,7 @@ Rxjs当然不输于Promise，但一定要说优势的话，还是落到Operators
 
 显然Rxjs的组合技是更加方便的。
 
-
+<Br/>
 
 ## 表单实时保存草稿
 
@@ -290,7 +294,7 @@ Rxjs当然不输于Promise，但一定要说优势的话，还是落到Operators
 
 这里考虑不使用Rxjs会怎么做，用一个全局变量记录第一次发起的请求，之后再过来的行为，通过`pr.then`形式注入？这个逻辑就比较别扭了。
 
-
+<Br/>
 
 ## 异步按钮：防重复点击
 
@@ -300,13 +304,13 @@ Rxjs当然不输于Promise，但一定要说优势的话，还是落到Operators
 
 现在开发中防重复点击是通过Loading、disabled，从UI层来防止。基于`exhaustMap`，是从js逻辑控制，而增加Loading或者disabled做视觉提示。
 
-
+<Br/>
 
 ## 其他：Subject相关
 
 摘自飞叔：[Rxjs入门指引和初步应用](https://zhuanlan.zhihu.com/p/25383159)
 
-
+<Br/>
 
 表达这样一个关系：利用`Subject`做一个占位符
 
@@ -321,13 +325,13 @@ Rxjs当然不输于Promise，但一定要说优势的话，还是落到Operators
 
 [DEMO](https://codesandbox.io/s/react-ts-rxjs-njyc7?file=/src/components/rxjs/MoneyHouse.ts:0-166)
 
-
+<Br/>
 
 对“我们来晚了的订阅者”，实现回放之前错过的一切：
 
 [DEMO-黄蓉郭靖背九阴真经](https://stackblitz.com/edit/y1bxyx?file=index.ts)
 
-
+<Br/>
 
 ## 总结
 
@@ -343,7 +347,7 @@ Rx使用场景的概述，看飞叔这段话：
 
 关键字就是：实时性、整体性、分发和联动关系多。
 
-
+<Br/>
 
 这里挖掘的场景是实时性，当发生请求的行为是频繁的，通过不同的策略做调控。
 

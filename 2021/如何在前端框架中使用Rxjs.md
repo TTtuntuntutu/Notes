@@ -6,7 +6,7 @@
 UI = f(data)
 ```
 
-
+<Br/>
 
 响应式编程（Rxjs）：关注的点在数据，从流的源头，到流数据的处理等，再到数据的订阅、数据的消费；
 
@@ -14,7 +14,7 @@ UI = f(data)
 data = g(source)
 ```
 
-
+<Br/>
 
 所以在前端框架中使用响应式编程并不冲突，甚至在某些场景是完美的合作关系：
 
@@ -27,6 +27,8 @@ UI = f(g(source))
 > Quoting Wikipedia:
 >
 > >The view model of MVVM is a value converter meaning that the view model is responsible for exposing the data objects from the model in such a way that those objects are easily managed and consumed. In this respect, the view model is more model than view, and handles most if not all of the view’s display logic.
+
+<Br/>
 
 ## 先从React开始：rxjs-hooks
 
@@ -48,13 +50,13 @@ UI = f(g(source))
   }, [greet, name]);
   ```
 
-
+<Br/>
 
 注意：`useMemo`计算数据在render之前，而`useState`+`useEffect`的数据计算逻辑在`useEffect`，在render之后。
 
 想要接入Rxjs，整个管道的搭建，包括Observable的准备、数据处理、数据订阅，甚至是产生一些副作用（tap），而这些超出了`useMemo`的承载力。反观`useEffect`却很适合，所以考虑以`useState`+`useEffect`去扩展。
 
-
+<Br/>
 
 那首先来一个基础版本：
 
@@ -93,7 +95,7 @@ const GreetSomeone = ({ greet = 'Hello' }) => {
 
 有点模样了，在`useEffect`中搭建了Rxjs流，数据订阅后，把数据记录在组件内用作数据渲染，同时当组件销毁时，取消订阅。
 
-
+<Br/>
 
 但这里的问题是，prop `greet`是会发生变化的，而`greet$`的数据不会发生更新。怎么解决呢？比如这样：
 
@@ -109,7 +111,7 @@ React.useEffect(() => {
 
 这样的问题是，每次Rxjs流会因为prop `greet`更新而重新生成，继而接口`fetchSomeName`会再次调用。成本有点大。
 
-
+<Br/>
 
 怎么解决呢？再引入一个`useEffect`，用Rxjs的`Subject.next`主动去推数据，而保证构建Rxjs流仅执行一次，贴上完整代码：
 
@@ -154,7 +156,7 @@ const GreetSomeone = ({ greet = 'Hello' }) => {
 
 ```
 
-
+<Br/>
 
 基于这样的基本认识，来认识一下 [Rxjs-hooks](https://github.com/LeetCode-OpenSource/rxjs-hooks)，自我介绍非常简单：
 
@@ -162,7 +164,7 @@ const GreetSomeone = ({ greet = 'Hello' }) => {
 
 Rxjs-hooks设计了两个hook，一个是`useObservable`，一个是`useEventCallback`。
 
-
+<Br/>
 
 看一下`useObservable`：摘除TS类型后，是不是和上面提到的结构是一致的
 
@@ -238,7 +240,7 @@ function eventCallback(e: EventValue) {
 return [returnedCallback as VoidableEventCallback<EventValue>, state]
 ```
 
-
+<Br/>
 
 ## 思考：rxjs落地环境需要的条件
 
@@ -248,7 +250,7 @@ return [returnedCallback as VoidableEventCallback<EventValue>, state]
 2. Rxjs流在哪里构建？
 3. Rxjs流如何使得Observable继续冒出值而流动？
 
-
+<Br/>
 
 ## 动动手：Vue + Rxjs
 
@@ -314,7 +316,7 @@ export default {
 
 会发现缺点在于逻辑非常分散，那么有没有什么好的封装形式呢？
 
-
+<Br/>
 
 Vue提供的插件机制！
 
@@ -324,11 +326,11 @@ Vue提供的插件机制！
 
 [vue-rx](https://github.com/vuejs/vue-rx)是Vue官方提供的Rxjs V6的Vue.js集成。正如 vue-router、vuex...一样，它也是一个Vue插件。
 
-
+<Br/>
 
 看了源码后，思路基本和自己考虑的是一致的。有以下几个重要的点坐下记录。
 
-
+<Br/>
 
 最最核心的 `subscriptions` 配置，它这样使用：
 
@@ -403,7 +405,7 @@ export default {
 
 `subscriptions`搭起来后，核心问题就解决了，剩下的是如何实现依赖驱动和行为驱动；
 
-
+<Br/>
 
 如何实现依赖驱动呢？
 
@@ -458,7 +460,7 @@ export default function watchAsObservable (expOrFn, options) {
 
 这样的方式在vue-rx中很常见。会发现，逻辑和自己写的简单Demo也是一致的，只不过ob的声明、观察值的变化冒出值的逻辑给封装进插件了。
 
-
+<Br/>
 
 如何实现行为驱动呢？自己写的简单Demo没有包括，但无非是定义个Subject，这个Subject参与流的构建，在事件响应的时候由它冒出值。
 
@@ -483,13 +485,13 @@ new Vue({
 
 正如React hooks，Vue Composition API也旨在解决逻辑碎片化的问题。
 
-
+<Br/>
 
 基于Vue Composition API，如何集成Rxjs有了新的讨论，优点在于对于使用方，逻辑更加聚合。
 
 具体讨论看看这里：[Vue Composition API and vue-rx](https://github.com/vuejs/vue-rx/issues/120)。
 
-
+<Br/>
 
 ## 总结
 
@@ -501,6 +503,6 @@ new Vue({
 2. 与流相关：流的构建，流是什么 => 流执行 => 数据订阅，数据赋值；
 3. 更好的场景覆盖：如何实现依赖驱动、行为驱动；
 
-
+<Br/>
 
 最后，希望Rxjs能在你的框架你的日常开发中发挥它的魔力！
