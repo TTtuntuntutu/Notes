@@ -2,22 +2,32 @@
 
 #             当遇到css布局，你在考虑什么？            
 
-​	CSS布局在前端开发中像呼吸一样——再平常不过的事。比如同事A在尝到了Flexbox布局的甜头之后，任何布局都会以`display:flex`打头阵，同事B因为项目得支持IE10，像避开毒蛇一样的避开Flexbox布局方法。你会发现我可能有点嗤笑这样的行为，我曾经也是这样的一员，我想为这个问题——*当遇到css布局，你在考虑什么？* 整理一个完整的解决方案。
+CSS布局在前端开发中像呼吸一样——再平常不过的事。然而会有这样的现象：
 
-​	你在考虑什么：从什么样的HTML结构出发能够帮助到css布局？你的布局方法武器库都有什么，在具体场景下，选择什么合适的布局方法？需要做支持旧浏览器吗？Flexbox、Grid这些布局的方法弄潮儿在旧浏览器中的最佳实践是？等等等等。
+- 同事A在尝到了Flexbox布局的甜头之后，任何布局都会以`display:flex`打头阵；
+- 同事B因为项目得支持IE10，像避开毒蛇一样的避开Flexbox布局方法；
 
-​	本文将介绍我的"答案"，欢迎胖友们补充、更正。
+我曾经也是这样的一员。我想为这个问题——*当遇到css布局，你在考虑什么？* 整理一个完整的解决方案。
 
-## Normal flow：css布局的起点
+解决以下这些问题：
 
-​	Normal flow（不知什么中文翻译妥帖，还是扔了英文...）指的是如果没有改变css布局代码，网页中标签的默认表现方式。比如[demo-normal-flow](https://link.juejin.cn?target=https%3A%2F%2Fcodepen.io%2FTTtuntuntutu%2Fpen%2FbJbpOm%3F%26editable%3Dtrue)：块级标签`p`挨个从上往下，而内联标签`span`表现得像段落中的文本。
+- 从什么样的HTML结构出发能够帮助到css布局？
+- 你的布局方法武器库都有什么，在具体场景下，选择什么合适的布局方法？
+- 需要做支持旧浏览器吗？
+- Flexbox、Grid这些布局的方法弄潮儿在旧浏览器中的最佳实践是？
+- ...
 
-​	当我们创建、自定义一个布局，其实是调整标签在Normal flow中的位置，或是直接从Normal  flow移除，我们最最原始的材料就是Normal flow。如果使用语义化标签（semantic  markup），从一个结构良好的HTML文档开始是很有帮助的：
+<Br/>
 
-1. 语义化标签确保**内容可读，**即使是非常受限制的浏览器、像屏幕阅读器这样的设备也如此；
-2. 以此为起点去**布局文档，是合作友好的**，而不是破坏性的、改动很大的，因为大多数标签还是在Normal flow中；
+## 使用语义化标签构建文档流
 
-HTML5新加了些帮助结构化的标签，[html-document-structured](https://link.juejin.cn?target=https%3A%2F%2Fhtml.com%2Fdocument%2F) 这篇文章可以参考，这里做一个overview：
+标准文档流（Normal flow）指的是如果没有改变css布局代码，网页中标签的默认表现方式。比如块级标签`p`挨个从上往下，而内联标签`span`表现得像段落中的文本。当我们创建、自定义一个布局，其实是调整标签在文档流中的位置，或是直接从文档流移除，写布局样式的起点就是文档流。
+
+<Br/>
+
+建议使用语义化标签（semantic  markup），因为可以构建一个结构良好的初始文档流。
+
+HTML5新加了些帮助结构化的标签，[html-document-structured](https://link.juejin.cn?target=https%3A%2F%2Fhtml.com%2Fdocument%2F) 这篇文章可以参考，这里做一个概览：
 
 - `header`：`body`、`main`标签的直接子标签，位置在页面头部，内容可能为logo、标语、搜索提示、导航栏；
 - `nav`：导航栏包在`nav`标签内，可能出现在头部、侧边栏、底部等等，这里有个[demo-mdn-nav](https://link.juejin.cn?target=https%3A%2F%2Fcodepen.io%2FTTtuntuntutu%2Fpen%2FXGOYRZ)，神奇的地方在于设置`nav`标签的`display:inline-block`，是作用在`li`标签上的；
@@ -28,20 +38,22 @@ HTML5新加了些帮助结构化的标签，[html-document-structured](https://l
 - `address`：提供联系信息，放在`article`标签内提供文章作者信息，放在`main`、`body`、`footer`内提供网站信息；
 - `footer`：一般在HTML结构底部，补充网站信息，如果放在`article`内补充文章信息；
 
-​	**Normal flow是CSS布局的起点，更好的选择是语义化标签(semantic markup)作为CSS布局的起点。**
 
-## 在具体场景下选择合适的布局方法
 
-css布局方法有很多，如Flexbox、Grid、Float等等等等，在使用之前得把握**两个中心思想**：
+<Br/>
 
-1. 每种布局方法有它的使用场景、使用上下文，在具体场景中选择对应合适的布局方法才是王道；
+## 选择合适的布局方法
+
+css布局方法有很多，如Flexbox、Grid、Float等等等等。在开始之前得把握**两个中心思想**：
+
+1. 从上下文选择合适的布局方法；
 2. 一个页面往往会应用多种布局方法，而不是一种布局方法解决所有问题，布局方法间是合作的关系；
 
-接下来主要以讲demo的形式介绍各个布局方法的使用场景，对于布局方法自身如何使用不会过多说明。
+<Br/>
 
 ### Flexbox
 
-Flexbox是Flexible Box Layout的简称，Flexbox既可以用于整个页面的布局，也可以用于局部部件的布局。Flexbox存在些浏览器兼容性的问题，在旧浏览器中的实践会在之后说明。接下来几个场景是建立在浏览器支持Flexbox的前提下。
+Flexbox是Flexible Box Layout的简称。Flexbox既可以用于整个页面的布局，也可以用于局部部件的布局。Flexbox存在些浏览器兼容性的问题，在旧浏览器中的实践会在之后说明。
 
 #### Flexing sizing of flex items
 
@@ -61,23 +73,33 @@ Flexbox全称Flexible Box Layout中的Flexible（灵活性），是它的**立�
 
 
 
-1. [demo-flexbox-flex-fixedWidthWithFlex](https://link.juejin.cn?target=https%3A%2F%2Fjsbin.com%2Freveqeqaka%2Fedit%3Fhtml%2Ccss%2Coutput)：这是实际使用中一个很常见的做法，这里将`footer`标签高度固定，`section`标签因为`flex:1`而占据余下所有空间。在水平方向，也可以是侧边栏宽度固定，主要内容占据余下所有空间；
+2.  [demo-flexbox-flex-fixedWidthWithFlex](https://link.juejin.cn?target=https%3A%2F%2Fjsbin.com%2Freveqeqaka%2Fedit%3Fhtml%2Ccss%2Coutput)：这是实际使用中一个很常见的做法，这里将`footer`标签高度固定，`section`标签因为`flex:1`而占据余下所有空间。在水平方向，也可以是侧边栏宽度固定，主要内容占据余下所有空间；
+
+<Br/>
 
 #### 水平、垂直位置调整
 
 Flexbox提供像`align-items`、`justify-content`这样的属性去调整flex items在主轴（main axis）、副轴（cross axis）的位置。比如最常见的考试题，水平垂直居中某个元素，[demo-flexbox-alignment](https://link.juejin.cn?target=https%3A%2F%2Fjsbin.com%2Fyabogejoqe%2Fedit%3Fhtml%2Ccss%2Coutput) ；再比如`justify-content:space-around` 作用于导航条的样式，[demo-flexbox-alignment-justify-content](https://link.juejin.cn?target=https%3A%2F%2Fjsbin.com%2Flebepuzuni%2Fedit%3Fhtml%2Ccss%2Coutput)。
 
+<Br/>
+
 #### 调整标签顺序
 
 一般来说，标签出现顺序由源代码中出现顺序决定，Flexbox为Flex items提供了`order`属性，提供从css角度调整Flex items在页面中出现的顺序的能力。
+
+<Br/>
 
 #### 补充一个黑科技
 
 如果为Flex item设置主轴方向（main axis）的`margin`值为`auto`，比如主轴是横向的，设置`margin-left:auto`，这个Flex item会占据往左这个方向的剩余空间：[demo-flex-flex-item-margin:auto](https://link.juejin.cn?target=https%3A%2F%2Fjsbin.com%2Fqosegesawo%2Fedit%3Fhtml%2Ccss%2Coutput)。
 
+<Br/>
+
 ### Grid
 
-Grid布局，和Flexbox设计为在一个方向布局不同，它帮助我们更加容易地从两个方向上布局元素。我更加推荐Grid布局应用于整个页面，因为它非常清爽、优雅。它同样存在浏览器兼容问题，且比Flexbox更要重，在旧浏览器中的实践会在之后说明。接下来几个场景是建立在浏览器支持Grid的前提下。
+Grid布局，和Flexbox设计为在一个方向布局不同，它帮助我们更加容易地从两个方向上布局元素。Grid布局更加推荐应用于在页面。它同样存在浏览器兼容问题，在旧浏览器中的实践会在之后说明。
+
+<Br/>
 
 #### 优雅的整个页面布局
 
@@ -89,15 +111,21 @@ Grid布局，和Flexbox设计为在一个方向布局不同，它帮助我们更
 
 如果能使用Grid布局整个页面，我是强烈推荐的，它的思维切入点不再是一维，而是二维，这是一场变革。
 
+<Br/>
+
 ### Floats
 
 Floats布局方法既可以针对整个页面，也可以针对局部部件，虽然设计之初并不是为了布局整个页面。我是把Floats作为无法使用Grid、Flexbox时候的第一选择。像前面提到的做Grid System的css库，它其实也是将其中的每一个item设置为了`float:left`，然后计算占据宽度的百分比以模拟Grid System。
 
-另外，"floated item"（设置`float:left`或`float:right`）会从Normal flow中移除。来看看具体应用的demo吧。
+另外，"floated item"（设置`float:left`或`float:right`）会从文档流中移除。来看看具体应用的demo吧。
+
+<Br/>
 
 #### 文字环绕图片
 
 “文字环绕图片”是Floats设计的初衷：[demo-float-avatar image](https://link.juejin.cn?target=https%3A%2F%2Fcodepen.io%2Fteam%2Fcss-tricks%2Fpen%2F429479abb959d19657fedd04d8f14007)
+
+<Br/>
 
 #### 文本首单词首字母特殊处理
 
@@ -108,6 +136,8 @@ Floats布局方法既可以针对整个页面，也可以针对局部部件，�
 ![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/4/2/169dc157e4e4d3a2~tplv-t2oaga2asx-watermark.image)
 
 
+
+<Br/>
 
 #### 页面布局：一个最常见Floats问题的解决
 
@@ -129,17 +159,19 @@ Floats布局方法既可以针对整个页面，也可以针对局部部件，�
 
 ![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/4/2/169dc15fa47fda35~tplv-t2oaga2asx-watermark.image)
 
-
+<Br/>
 
 ### Table layout
 
-在许多年以前，web开发者使用`table`标签做整个页面的布局，将页面内容放入`table`的行和列中，这种方法的问题在于不灵活，而且语义错误（对于屏幕阅读器的用户很不友好）。之所以放入`table`标签能布局，是因为存在**描述table layout的一些列css属性**，它们是和`table`这些标签是绑定的。而直接使用这些css属性，用于不是`table`这些元素布局，这种方法被称为是 **"using CSS tables"** ：[demo-using css tables](https://link.juejin.cn?target=https%3A%2F%2Fjsfiddle.net%2FLd0kh2fm%2F)；
+在许多年以前，web开发者使用`table`标签做整个页面的布局，将页面内容放入`table`的行和列中，这种方法的问题在于不灵活，而且语义错误（对于屏幕阅读器的用户很不友好）。之所以放入`table`标签能布局，是因为`table`下的这些标签，绑定了可布局的一些列css属性：[demo-using css tables](https://link.juejin.cn?target=https%3A%2F%2Fjsfiddle.net%2FLd0kh2fm%2F)；
 
 "using css tables" 被称作是一种遗留方法（legacy method），用于整个页面布局，适用于不支持Flexbox和Grid的浏览器，但是我这里的最佳替补还是Floats。
 
+<Br/>
+
 ### Positioning
 
-Positioning的定位和前面四种不太一样，它一般不用于创建整个页面布局，而是**管理和微调标签，做一个局部位置的调整**。要注意如果已经设置以下几个`position`属性值的标签，层级是高于Normal flow，层级可通过`z-index`属性调整。
+Positioning的定位和前面四种不太一样，它一般不用于创建整个页面布局，而是**管理和微调标签，做一个局部位置的调整**。要注意如果已经设置以下几个`position`属性值的标签，层级是高于文档流的，层级可通过`z-index`属性调整。
 
 #### `position:relative` 相对定位，做位置调整
 
@@ -159,11 +191,15 @@ MDN上放了这样一个使用场景说明：
 
 #### `position:sticky` 粘性定位
 
-这里有个很经典的例子： [demo-sticky-a scrolling index page where different headings stick to the top of the page as they reach it](https://link.juejin.cn?target=https%3A%2F%2Fjsfiddle.net%2F9p8ry5hb%2F) ；但是在使用时得考虑浏览器兼容问题，兼容性目前堪忧。
+这里有个很经典的例子： [demo-sticky-a scrolling index page where different headings stick to the top of the page as they reach it](https://link.juejin.cn?target=https%3A%2F%2Fjsfiddle.net%2F9p8ry5hb%2F) ；但是在使用时得考虑浏览器兼容问题。
+
+<Br/>
 
 ### Multicol
 
 Multicol是Multi-columns layout的简称，它提供了一种在列中布置内容的方法，**类似于文本在报纸中的流动方式，使得阅读更加友好**，不用上下滚动。Multicol的定位是这一种特殊的内容展示布局。
+
+<Br/>
 
 #### 报纸阅读模式
 
@@ -175,9 +211,13 @@ Multicol是Multi-columns layout的简称，它提供了一种在列中布置内�
 
 
 
-## Flexbox、Grid考虑支持旧浏览的最佳实践
+<Br/>
 
-最初吸引我做这个话题的原因，是目前公司项目得支持IE10、IE11，现状是项目中的布局方法没有Grid、鲜有Flexbox，就比较心痒痒，想搞搞明白到底能不能在支持IE10、IE11的情况使用这两种潮流的布局方法。所以在旧浏览器中的实践重点考虑的是IE10、IE11两位。
+## 支持旧浏览下的Flexbox、Grid实践
+
+最初吸引我做这个话题的原因，是公司项目得支持IE10、IE11，现状是项目中的布局方法没有Grid、鲜有Flexbox，就比较心痒痒，想搞搞明白到底能不能在支持IE10、IE11的情况使用。所以在旧浏览器中的实践重点考虑的是IE10、IE11两位。
+
+<Br/>
 
 ### Flexbox: Postcss插件Autoprefixer
 
@@ -190,26 +230,29 @@ Multicol是Multi-columns layout的简称，它提供了一种在列中布置内�
 
 另外贴两篇Postcss扫盲文章：[Some things you may think about PostCSS... and you might be wrong](https://link.juejin.cn?target=http%3A%2F%2Fjulian.io%2Fsome-things-you-may-think-about-postcss-and-you-might-be-wrong%2F)、[It's Time for Everyone to Learn About PostCSS*What It Really Is; What It Really Does*](https://link.juejin.cn?target=https%3A%2F%2Fdavidtheclark.com%2Fits-time-for-everyone-to-learn-about-postcss%2F)
 
+<Br/>
+
 ### Grid: Feature Queries
 
 浏览器对Grid的支持较Flexbox要差很多，IE10、IE11支持的是旧版本的规范，是带有`-ms-`前缀，但即使使用autoprefixer补上了前缀，相同属性名相同属性值在页面中的表现也可能不一致。这样我是不推荐Flexbox实践中的方法，而是使用Feature Queries。
 
-Feature Queries是使用css的`@supports`，`@supports`用于检测浏览器是否支持参数中的属性属性值，如果支持则渲染花括号中的css代码，类似于：
+Feature Queries是使用css的`@supports`检测浏览器是否支持参数中的属性属性值，如果支持则渲染花括号中的css代码，类似于：
 
-```
+```css
 @supports (display: grid) {
    // code that will only run if CSS Grid is supported by the browser 
  }
-复制代码
 ```
 
 这里有个细节点，IE10、IE11是不支持`@supports`规则，所以压根不会进入这个条件判断，花括号中的css代码是不会渲染的，这与我们考虑的逻辑：支持`@supports`规则、不支持`display:grid`是不同的，但是最后的结果是一样的。
+
+<Br/>
 
 以一个例子讲述一下整个流程：[demo-creating fallbacks in CSS](https://link.juejin.cn?target=https%3A%2F%2Fjsfiddle.net%2Fcpaq1t7v%2F1%2F)
 
 1. **首先是给旧浏览器做支持**，准备一套Fallback method，保证在所有浏览器上都是工作的：
 
-```
+```css
 .wrapper{
   overflow:auto;
 }
@@ -218,31 +261,30 @@ Feature Queries是使用css的`@supports`，`@supports`用于检测浏览器是�
   float:left;
   width:33.3%;
 }
-复制代码
 ```
 
-1. **再给支持Grid的浏览器做覆盖**，覆盖代码分两部分，一部分是直接放入对旧浏览没有影响的：
+2. **再给支持Grid的浏览器做覆盖**，覆盖代码分两部分，一部分是直接放入对旧浏览没有影响的：
 
-```
+```css
 .wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
 }
-复制代码
 ```
 
 因为旧浏览器不支持Grid布局，Grid相关属性旧浏览器都无法解释。在支持的浏览器中使得item由floated item转为grid item，这样的覆盖行为由css规定，更多覆盖情况见[Fallback method](https://link.juejin.cn?target=https%3A%2F%2Fdeveloper.mozilla.org%2Fen-US%2Fdocs%2FLearn%2FCSS%2FCSS_layout%2FSupporting_Older_Browsers%23Fallback_Methods)。另一部分是直接放入对旧浏览器是有影响的，要做Feature queries：
 
-```
+```css
 @supports (display: grid) {
   .item {
       width: auto;
   }
 }
-复制代码
 ```
 
 覆盖原有的`width:33.3%`。
+
+<Br/>
 
 没错，这里的实践得写两套样式。所以有人提出问题，写一套支持所有浏览器的不就得了，干嘛非得用Grid？这是个很实际的问题，毕竟写两套，再加测试调试，会增加一定工作量。有几个场景建议使用Grid：
 
@@ -250,32 +292,38 @@ Feature Queries是使用css的`@supports`，`@supports`用于检测浏览器是�
 2. 项目周期会很长，可能现在不支持Grid布局的浏览器，以后就支持了；
 3. 要实现的效果不使用Grid布局很难实现，且对在旧浏览器中访问效果要求不高，能看就行；
 
+<Br/>
+
 ### 测试
 
 尤其是支持IE10、IE11的项目，测试是很重要的一个环节，最佳的测试还是在各个浏览器中打开。但这里存在获取浏览器的问题，例如win10系统上仅有IE11，而不能使用IE10等。有些公司有自己的服务器，有各种浏览器可供测试；如果没有的话，可以考虑下载虚拟机：[download the Virtual Machines offered by Microsoft](https://link.juejin.cn?target=https%3A%2F%2Fdeveloper.microsoft.com%2Fen-us%2Fmicrosoft-edge%2Ftools%2Fvms%2F) ，或者使用像 [BrowserStack](https://link.juejin.cn?target=https%3A%2F%2Fwww.browserstack.com%2F) 访问远程的虚拟机。
 
 从开发者角度，整个工作流程应该是这样子：
 
-1. 初始开发计划制定
-2. 开发
-3. 测试、发现问题
-4. 修复问题，重复2～4步骤
+1. 初始开发计划制定；
+2. 开发；
+3. 测试、发现问题；
+4. 修复问题，重复2～4步骤；
+
+<Br/>
 
 ## 总结
 
-1. 做css布局
-   1. 布局的出发点是语义化标签
-   2. 考虑在具体场景下使用什么布局方法最合适最简单
-   3. 考虑要不要支持旧浏览器，要明确支持不意味着显示一模一样，可存在体验优秀+体验一般两种模式
-2. Flexbox、Grid考虑旧浏览器的实践（支持IE10、IE11）
-   1. Flexbox支持性比Grid好，使用Autoprefixer前缀，避开Flexbox bug、已知issues，放开了使用
-   2. Grid布局要想使用，得用Feature Queries的方法，额外准备一套Fallback Methods
-   3. Autoprefixer关闭对Grid属性添加前缀（默认行为）
-3. 测试
+1. 做css布局：
+   1. 布局的出发点是语义化标签；
+   2. 考虑在具体场景下使用什么布局方法最合适最简单；
+   3. 考虑要不要支持旧浏览器，要明确支持不意味着显示一模一样，可存在体验优秀+体验一般两种模式；
+2. Flexbox、Grid考虑旧浏览器（IE10、IE11）的实践：
+   1. Flexbox支持性比Grid好，使用Autoprefixer前缀，避开Flexbox bug、已知issues，放开了使用；
+   2. Grid布局要想使用，得用Feature Queries的方法，额外准备一套Fallback Methods；
+   3. Autoprefixer关闭对Grid属性添加前缀（默认行为）；
+3. 测试：
    1. 测试流程：初始开发计划制定 > 开发 > 测试、发现问题 > 修复问题，重复2～4步骤
-   2. 借助虚拟机等
+   2. 借助虚拟机等。
 
-### 参考链接
+
+
+## 参考链接
 
 [MDN-CSS-layout](https://link.juejin.cn?target=https%3A%2F%2Fdeveloper.mozilla.org%2Fen-US%2Fdocs%2FLearn%2FCSS%2FCSS_layout)
 
@@ -290,4 +338,5 @@ Feature Queries是使用css的`@supports`，`@supports`用于检测浏览器是�
 [Some things you may think about PostCSS... and you might be wrong](https://link.juejin.cn?target=http%3A%2F%2Fjulian.io%2Fsome-things-you-may-think-about-postcss-and-you-might-be-wrong%2F)
 
 [It's Time for Everyone to Learn About PostCSS*What It Really Is; What It Really Does*](https://link.juejin.cn?target=https%3A%2F%2Fdavidtheclark.com%2Fits-time-for-everyone-to-learn-about-postcss%2F)
+
 
