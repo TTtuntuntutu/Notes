@@ -82,7 +82,7 @@ async function workInSerialEasy() {
   return "when all done";
 }
 
-// 注意这里，在foo循环里，单个执行等待await完成，所以可以作为串行
+// 注意这里，在for..of循环里，单个执行等待await完成，所以可以作为串行
 async function workInSerial(arrs) {
   for (const url of urls) {
     const response = await fetch(url);
