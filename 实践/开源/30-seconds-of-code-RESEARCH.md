@@ -1,5 +1,7 @@
 ### 说在前面
 
+<!--写于2020年-->
+
 在前端日常开发中，经常会遇到后端接口返回的数据结构，和前端组件需要的数据结构不一致的情况，很多时候需要前端来做这个转换。比较多的是 `Array` 类型的转换，这个事儿比较费时间。所以想找找有没有开源的snippet集合直接拿来用，而且最好是原生JavaScript实现。
 
 偶尔看到了这个[30 seconds of code](https://www.30secondsofcode.org/list)网站，之所以取这个名字，它是希望每个snippet可以在30s或者以内被理解。嗯...整个网站风格很符合前端审美...简单实用。进入[github:30-seconds-of-code](https://github.com/30-seconds/30-seconds-of-code) ，了解到star数还挺多，以及 30-seconds-of-code 仅仅是 30 seconds 这个系列的代表作，其他还有css、react等，详情移步这里：[github:30 seconds](https://github.com/30-seconds)。

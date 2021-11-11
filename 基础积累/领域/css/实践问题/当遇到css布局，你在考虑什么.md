@@ -1,6 +1,8 @@
 ![img](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/4/2/169dc16972f2bee0~tplv-t2oaga2asx-zoom-crop-mark:1304:1304:1304:734.image)
 
-#             当遇到css布局，你在考虑什么？            
+#             当遇到css布局，你在考虑什么？ 
+
+<!--写于2018年-->
 
 CSS布局在前端开发中像呼吸一样——再平常不过的事。然而会有这样的现象：
 
@@ -338,5 +340,4 @@ Feature Queries是使用css的`@supports`检测浏览器是否支持参数中的
 [Some things you may think about PostCSS... and you might be wrong](https://link.juejin.cn?target=http%3A%2F%2Fjulian.io%2Fsome-things-you-may-think-about-postcss-and-you-might-be-wrong%2F)
 
 [It's Time for Everyone to Learn About PostCSS*What It Really Is; What It Really Does*](https://link.juejin.cn?target=https%3A%2F%2Fdavidtheclark.com%2Fits-time-for-everyone-to-learn-about-postcss%2F)
-
 

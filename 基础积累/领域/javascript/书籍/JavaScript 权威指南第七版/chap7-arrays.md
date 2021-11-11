@@ -1,5 +1,7 @@
 ## 数组
 
+<!--写于2021年-->
+
 > JavaScript arrays are untyped
 
 > JavaScript arrays are dynamic

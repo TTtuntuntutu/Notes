@@ -1,5 +1,7 @@
 # Rxjs世界模型
 
+<!--写于2021年-->
+
 提到Rxjs，会有哪些印象呢？
 
 响应式编程（Reactive Programming），还是官方的介绍：Think of RxJS as Lodash for events.

@@ -1,4 +1,5 @@
 ## 函数
+<!--写于2021年-->
 
 定义函数有3种方式：函数声明（declaration）、函数表达式（expression）、箭头函数表达式（arrow functions expression）；
 
